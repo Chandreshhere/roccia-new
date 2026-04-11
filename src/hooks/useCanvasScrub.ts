@@ -6,6 +6,12 @@ interface UseCanvasScrubOptions {
   framePrefix?: string;
   frameExt?: string;
   fit?: 'cover' | 'contain';
+  /**
+   * Load only every Nth frame (1 = all, 2 = every other, 3 = every third).
+   * Cuts network + memory by `stride`× with minimal visual quality loss
+   * during scroll scrubbing. Default 1.
+   */
+  stride?: number;
 }
 
 export function useCanvasScrub({
@@ -14,7 +20,10 @@ export function useCanvasScrub({
   framePrefix = 'frame_',
   frameExt = 'jpg',
   fit = 'cover',
+  stride = 1,
 }: UseCanvasScrubOptions) {
+  // Number of frames the hook actually loads after striding
+  const effectiveCount = Math.max(1, Math.ceil(frameCount / stride));
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const loadedSetRef = useRef<Set<number>>(new Set());
@@ -25,12 +34,15 @@ export function useCanvasScrub({
   const coverParamsRef = useRef<{ sx: number; sy: number; sw: number; sh: number } | null>(null);
   const containParamsRef = useRef<{ dx: number; dy: number; dw: number; dh: number } | null>(null);
 
+  // i is the VIRTUAL index (0 .. effectiveCount - 1); we map it back to
+  // the actual on-disk frame number using stride.
   const getFrameSrc = useCallback(
     (i: number) => {
-      const num = String(i + 1).padStart(4, '0');
+      const actual = Math.min(frameCount - 1, i * stride);
+      const num = String(actual + 1).padStart(4, '0');
       return `${frameDir}/${framePrefix}${num}.${frameExt}`;
     },
-    [frameDir, framePrefix, frameExt]
+    [frameDir, framePrefix, frameExt, stride, frameCount]
   );
 
   // Draw frame — canvas size and cover params are locked after first draw
@@ -106,7 +118,7 @@ export function useCanvasScrub({
   const preload = useCallback(() => {
     if (imagesRef.current.length > 0) return;
 
-    const images: HTMLImageElement[] = new Array(frameCount);
+    const images: HTMLImageElement[] = new Array(effectiveCount);
     imagesRef.current = images;
 
     // Count both successful and failed loads toward "resolved" so the loading
@@ -151,7 +163,7 @@ export function useCanvasScrub({
 
     // Kick off the rest all at once — the browser will queue them over
     // its available HTTP/2 connections.
-    for (let i = 1; i < frameCount; i++) {
+    for (let i = 1; i < effectiveCount; i++) {
       const img = new Image();
       const idx = i;
       img.onload = () => onFrameResolved(idx, true);
@@ -172,7 +184,7 @@ export function useCanvasScrub({
   // Set progress — draws nearest loaded frame
   const setProgress = useCallback(
     (progress: number) => {
-      const targetIndex = Math.round(progress * (frameCount - 1));
+      const targetIndex = Math.round(progress * (effectiveCount - 1));
       const images = imagesRef.current;
       if (!images.length) return;
 
@@ -184,7 +196,7 @@ export function useCanvasScrub({
 
       for (let offset = 1; offset < 15; offset++) {
         for (const idx of [targetIndex - offset, targetIndex + offset]) {
-          if (idx >= 0 && idx < frameCount) {
+          if (idx >= 0 && idx < effectiveCount) {
             const fallback = images[idx];
             if (fallback && fallback.complete && fallback.naturalWidth) {
               drawFrame(idx);
@@ -194,7 +206,7 @@ export function useCanvasScrub({
         }
       }
     },
-    [frameCount, drawFrame]
+    [effectiveCount, drawFrame]
   );
 
   return {
@@ -202,6 +214,6 @@ export function useCanvasScrub({
     preload,
     setProgress,
     isReady: () => readyRef.current,
-    loadProgress: () => loadedSetRef.current.size / frameCount,
+    loadProgress: () => loadedSetRef.current.size / effectiveCount,
   };
 }

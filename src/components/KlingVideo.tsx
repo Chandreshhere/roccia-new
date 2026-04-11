@@ -61,6 +61,7 @@ const KlingVideo: React.FC = () => {
   const { canvasRef, preload, setProgress, isReady, loadProgress } = useCanvasScrub({
     frameDir: '/assets/frames-kling',
     frameCount: FRAME_COUNT,
+    stride: 2,
   });
 
   // Birds video — second canvas scrub (contain fit, no crop)
@@ -68,6 +69,7 @@ const KlingVideo: React.FC = () => {
     frameDir: '/assets/frames-birds',
     frameCount: BIRDS_FRAME_COUNT,
     fit: 'contain',
+    stride: 2,
   });
 
   useEffect(() => {
