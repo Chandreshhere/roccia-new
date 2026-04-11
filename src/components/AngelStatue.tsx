@@ -1,12 +1,16 @@
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 
-// Serve the 40 MB GLB from jsDelivr in production (global CDN edge cache),
-// local file in dev.
+// Draco-compressed GLB (42 MB → 13 MB) so jsDelivr will serve it
+// (jsDelivr rejects files > 20 MB).
 const GLB_URL = import.meta.env.PROD
-  ? 'https://cdn.jsdelivr.net/gh/Chandreshhere/roccia-new@main/public/assets/angel-statue/source/AngelStatue.glb'
-  : '/assets/angel-statue/source/AngelStatue.glb';
+  ? 'https://cdn.jsdelivr.net/gh/Chandreshhere/roccia-new@main/public/assets/angel-statue/source/AngelStatue.draco.glb'
+  : '/assets/angel-statue/source/AngelStatue.draco.glb';
+
+// Draco decoder lives on a CDN — three.js pulls it on demand.
+const DRACO_DECODER_PATH = 'https://www.gstatic.com/draco/versioned/decoders/1.5.6/';
 
 const AngelStatue: React.FC = () => {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -51,8 +55,12 @@ const AngelStatue: React.FC = () => {
     rimLight.position.set(-3, 2, -3);
     scene.add(rimLight);
 
-    // Load GLB
+    // Load GLB (Draco-compressed)
     const loader = new GLTFLoader();
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath(DRACO_DECODER_PATH);
+    loader.setDRACOLoader(dracoLoader);
+
     let model: THREE.Group | null = null;
     let needsRender = true;
 
