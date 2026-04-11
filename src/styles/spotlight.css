@@ -1,0 +1,25 @@
+.spotlight-img {
+  position: absolute;
+  width: 200px;
+  height: 150px;
+  will-change: transform;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.spotlight-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.spotlight h1 {
+  color: var(--frost);
+  opacity: 0.35;
+  transition: opacity 0.3s ease;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.08em;
+}
