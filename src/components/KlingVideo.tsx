@@ -8,6 +8,13 @@ gsap.registerPlugin(ScrollTrigger);
 const FRAME_COUNT = 903;
 const BIRDS_FRAME_COUNT = 951;
 
+// In production serve frame sequences from jsDelivr (free GitHub CDN) —
+// Vercel would otherwise need to serve ~2000 requests per first visit.
+// In dev we keep them local so Vite can serve from disk instantly.
+const FRAME_BASE = import.meta.env.PROD
+  ? 'https://cdn.jsdelivr.net/gh/Chandreshhere/roccia-new@main/public'
+  : '';
+
 const spotlightItems = [
   { name: 'Forma Divina', img: '/assets/1.jpeg' },
   { name: 'Piano Eterno', img: '/assets/2.jpeg' },
@@ -59,14 +66,14 @@ const KlingVideo: React.FC = () => {
   const birdsCanvasContainerRef = useRef<HTMLDivElement>(null);
 
   const { canvasRef, preload, setProgress, isReady, loadProgress } = useCanvasScrub({
-    frameDir: '/assets/frames-kling',
+    frameDir: `${FRAME_BASE}/assets/frames-kling`,
     frameCount: FRAME_COUNT,
     stride: 2,
   });
 
   // Birds video — second canvas scrub (contain fit, no crop)
   const birdsScrub = useCanvasScrub({
-    frameDir: '/assets/frames-birds',
+    frameDir: `${FRAME_BASE}/assets/frames-birds`,
     frameCount: BIRDS_FRAME_COUNT,
     fit: 'contain',
     stride: 2,

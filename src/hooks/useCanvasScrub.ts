@@ -153,6 +153,7 @@ export function useCanvasScrub({
     // handles hundreds of concurrent requests much faster than sequential
     // batches. Still prioritise frame 0 so the first paint happens first.
     const firstImg = new Image();
+    firstImg.crossOrigin = 'anonymous';
     firstImg.src = getFrameSrc(0);
     images[0] = firstImg;
     firstImg.onload = () => onFrameResolved(0, true);
@@ -165,6 +166,7 @@ export function useCanvasScrub({
     // its available HTTP/2 connections.
     for (let i = 1; i < effectiveCount; i++) {
       const img = new Image();
+      img.crossOrigin = 'anonymous';
       const idx = i;
       img.onload = () => onFrameResolved(idx, true);
       img.onerror = () => onFrameResolved(idx, false);

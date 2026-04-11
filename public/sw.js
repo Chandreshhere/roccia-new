@@ -2,12 +2,14 @@
 // visits are instant, even offline. Cache name is versioned so deploys
 // can bump it to invalidate.
 
-const CACHE_NAME = 'roccia-frames-v1';
-const FRAME_PREFIXES = [
+const CACHE_NAME = 'roccia-frames-v2';
+const SAME_ORIGIN_FRAME_PREFIXES = [
   '/assets/frames-kling/',
   '/assets/frames-birds/',
   '/assets/frames-statue/',
 ];
+// Also cache heavy assets pulled from jsDelivr
+const JSDELIVR_PREFIX = 'https://cdn.jsdelivr.net/gh/Chandreshhere/roccia-new';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -33,9 +35,13 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
 
   const url = new URL(req.url);
-  // Same-origin frame assets only
-  if (url.origin !== self.location.origin) return;
-  if (!FRAME_PREFIXES.some((p) => url.pathname.startsWith(p))) return;
+
+  const isSameOriginFrame =
+    url.origin === self.location.origin &&
+    SAME_ORIGIN_FRAME_PREFIXES.some((p) => url.pathname.startsWith(p));
+  const isJsdelivrAsset = req.url.startsWith(JSDELIVR_PREFIX);
+
+  if (!isSameOriginFrame && !isJsdelivrAsset) return;
 
   event.respondWith(
     (async () => {

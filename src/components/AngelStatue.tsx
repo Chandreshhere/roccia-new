@@ -2,6 +2,12 @@ import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
+// Serve the 40 MB GLB from jsDelivr in production (global CDN edge cache),
+// local file in dev.
+const GLB_URL = import.meta.env.PROD
+  ? 'https://cdn.jsdelivr.net/gh/Chandreshhere/roccia-new@main/public/assets/angel-statue/source/AngelStatue.glb'
+  : '/assets/angel-statue/source/AngelStatue.glb';
+
 const AngelStatue: React.FC = () => {
   const mountRef = useRef<HTMLDivElement>(null);
 
@@ -51,7 +57,7 @@ const AngelStatue: React.FC = () => {
     let needsRender = true;
 
     loader.load(
-      '/assets/angel-statue/source/AngelStatue.glb',
+      GLB_URL,
       (gltf) => {
         model = gltf.scene;
 
