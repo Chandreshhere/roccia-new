@@ -64,7 +64,7 @@ const KlingVideo: React.FC = () => {
   });
 
   // Birds video — second canvas scrub (contain fit, no crop)
-  const birdsCanvas = useCanvasScrub({
+  const birdsScrub = useCanvasScrub({
     frameDir: '/assets/frames-birds',
     frameCount: BIRDS_FRAME_COUNT,
     fit: 'contain',
@@ -79,11 +79,15 @@ const KlingVideo: React.FC = () => {
     if (!section || !titlesContainer || !imagesContainer || !header || !overlay) return;
 
     preload();
-    birdsCanvas.preload();
+    birdsScrub.preload();
 
     const loadInterval = setInterval(() => {
+      if (isReady()) {
+        setLoadPct(100);
+        clearInterval(loadInterval);
+        return;
+      }
       setLoadPct(Math.round(loadProgress() * 100));
-      if (isReady()) clearInterval(loadInterval);
     }, 100);
 
     // Build spotlight titles + floating images
@@ -152,7 +156,7 @@ const KlingVideo: React.FC = () => {
             if (revealCloudRef.current) revealCloudRef.current.style.transform = 'translateY(100%)';
             if (revealWhiteRef.current) revealWhiteRef.current.style.transform = 'translateY(100%)';
             if (frameWhitenRef.current) frameWhitenRef.current.style.opacity = '0';
-            birdsCanvas.setProgress(0);
+            birdsScrub.setProgress(0);
             if (birdsCanvasContainerRef.current) birdsCanvasContainerRef.current.style.opacity = '0';
           }
 
@@ -293,7 +297,7 @@ const KlingVideo: React.FC = () => {
             const revealP = (total - SPOTLIGHT_END) / (1 - SPOTLIGHT_END);
 
             // Birds video scrubs during reveal phase
-            birdsCanvas.setProgress(revealP);
+            birdsScrub.setProgress(revealP);
             if (birdsCanvasContainerRef.current) {
               birdsCanvasContainerRef.current.style.opacity = '1';
             }
@@ -337,7 +341,7 @@ const KlingVideo: React.FC = () => {
         background: '#000',
       }}
     >
-      {/* Video canvas */}
+      {/* Kling frames — scrubbed on scroll */}
       <canvas
         ref={canvasRef}
         style={{
@@ -379,7 +383,7 @@ const KlingVideo: React.FC = () => {
         }}
       >
         <canvas
-          ref={birdsCanvas.canvasRef}
+          ref={birdsScrub.canvasRef}
           style={{
             position: 'absolute',
             top: 0,

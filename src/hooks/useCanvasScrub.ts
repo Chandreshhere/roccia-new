@@ -109,50 +109,64 @@ export function useCanvasScrub({
     const images: HTMLImageElement[] = new Array(frameCount);
     imagesRef.current = images;
 
-    const onFrameLoad = (index: number) => {
-      loadedSetRef.current.add(index);
+    // Count both successful and failed loads toward "resolved" so the loading
+    // gate never stalls if a frame 404s or times out on the CDN.
+    const resolvedSet = new Set<number>();
 
-      if (index === 0 && !firstFrameDrawnRef.current) {
-        firstFrameDrawnRef.current = true;
-        drawFrame(0);
-      }
+    const onFrameResolved = (index: number, success: boolean) => {
+      if (resolvedSet.has(index)) return;
+      resolvedSet.add(index);
 
-      if (loadedSetRef.current.size === frameCount) {
-        readyRef.current = true;
+      if (success) {
+        loadedSetRef.current.add(index);
+        if (index === 0 && !firstFrameDrawnRef.current) {
+          firstFrameDrawnRef.current = true;
+          drawFrame(0);
+          // As soon as frame 0 is on screen we mark "ready" so the loading
+          // overlay clears and the user can start scrolling immediately.
+          // The rest of the frames continue streaming in parallel in the
+          // background; setProgress() falls back to the nearest loaded
+          // neighbour if a target frame isn't ready yet.
+          readyRef.current = true;
+        }
       }
     };
 
-    // Load frame 0 first
+    // Hard safety net — if frame 0 is really slow (rare), force ready after 4s
+    const readyTimeout = setTimeout(() => {
+      readyRef.current = true;
+    }, 4000);
+
+    // Fire every frame load in parallel — HTTP/2 multiplexing on Vercel
+    // handles hundreds of concurrent requests much faster than sequential
+    // batches. Still prioritise frame 0 so the first paint happens first.
     const firstImg = new Image();
     firstImg.src = getFrameSrc(0);
     images[0] = firstImg;
-
-    let batchIndex = 1;
-    const BATCH_SIZE = 25;
-
-    function loadBatch() {
-      const end = Math.min(batchIndex + BATCH_SIZE, frameCount);
-      for (let i = batchIndex; i < end; i++) {
-        const img = new Image();
-        const idx = i;
-        img.onload = () => onFrameLoad(idx);
-        img.src = getFrameSrc(i);
-        images[i] = img;
-      }
-      batchIndex = end;
-      if (batchIndex < frameCount) {
-        setTimeout(loadBatch, 10);
-      }
+    firstImg.onload = () => onFrameResolved(0, true);
+    firstImg.onerror = () => onFrameResolved(0, false);
+    if (firstImg.complete && firstImg.naturalWidth) {
+      onFrameResolved(0, true);
     }
 
-    firstImg.onload = () => {
-      onFrameLoad(0);
-      loadBatch();
-    };
-    if (firstImg.complete) {
-      onFrameLoad(0);
-      loadBatch();
+    // Kick off the rest all at once — the browser will queue them over
+    // its available HTTP/2 connections.
+    for (let i = 1; i < frameCount; i++) {
+      const img = new Image();
+      const idx = i;
+      img.onload = () => onFrameResolved(idx, true);
+      img.onerror = () => onFrameResolved(idx, false);
+      img.src = getFrameSrc(i);
+      images[i] = img;
     }
+
+    // Clear the safety timeout once ready
+    const cleanupInterval = setInterval(() => {
+      if (readyRef.current) {
+        clearTimeout(readyTimeout);
+        clearInterval(cleanupInterval);
+      }
+    }, 500);
   }, [frameCount, getFrameSrc, drawFrame]);
 
   // Set progress — draws nearest loaded frame
