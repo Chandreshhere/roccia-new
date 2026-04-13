@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import AngelStatue from './AngelStatue';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 const RocciaLogoFull: React.FC = () => (
   <svg
@@ -41,6 +42,7 @@ const RocciaLogoFull: React.FC = () => (
 );
 
 const Footer: React.FC = () => {
+  const mob = useIsMobile();
   const navLinks = {
     Collections: ['Casa', 'Bagno', 'Luce', 'Su Misura', 'Archive'],
     Company: ['About', 'Atelier', 'Sustainability', 'Careers', 'Press'],
@@ -125,8 +127,8 @@ const Footer: React.FC = () => {
             position: 'absolute',
             left: '50%',
             bottom: 0,
-            width: 'min(46vw, 620px)',
-            height: 'min(72vh, 820px)',
+            width: mob ? 'min(65vw, 300px)' : 'min(46vw, 620px)',
+            height: mob ? 'min(55vh, 400px)' : 'min(72vh, 820px)',
             transform: 'translate3d(-50%, 55vh, 0)',
             opacity: 0,
             pointerEvents: 'none',

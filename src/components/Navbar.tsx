@@ -1,11 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
+
+const allNavItems = [
+  { label: 'Collections', to: '/#collections' },
+  { label: 'About', to: '/about' },
+  { label: 'Artistry', to: '/#artistry' },
+  { label: 'Contact', to: '/#contact' },
+];
 
 const Navbar: React.FC = () => {
   const navRef = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     // Show navbar after loader delay
@@ -105,6 +113,40 @@ const Navbar: React.FC = () => {
           </li>
         ))}
       </ul>
+
+      {/* Hamburger — mobile only */}
+      <button
+        className="navbar__hamburger"
+        onClick={() => setMenuOpen((v) => !v)}
+        aria-label="Menu"
+      >
+        <span className={`navbar__hamburger-line ${menuOpen ? 'open' : ''}`} />
+        <span className={`navbar__hamburger-line ${menuOpen ? 'open' : ''}`} />
+      </button>
+
+      {/* Mobile full-screen menu */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            className="navbar__mobile-menu"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
+          >
+            {allNavItems.map((item) => (
+              <Link
+                key={item.label}
+                to={item.to}
+                className="navbar__mobile-link"
+                onClick={() => setMenuOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };

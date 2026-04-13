@@ -9,13 +9,14 @@ export function useLenis() {
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
+    const isMobile = window.innerWidth <= 768;
     const lenis = new Lenis({
-      duration: 2.4,
+      duration: isMobile ? 1.6 : 2.4,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      wheelMultiplier: 0.65,
-      touchMultiplier: 1.4,
-      lerp: 0.08,
+      wheelMultiplier: isMobile ? 1 : 0.65,
+      touchMultiplier: isMobile ? 2 : 1.4,
+      lerp: isMobile ? 0.1 : 0.08,
     });
 
     lenisRef.current = lenis;

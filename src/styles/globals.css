@@ -46,6 +46,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
 }
 
 body {
@@ -55,6 +56,7 @@ body {
   font-weight: 300;
   overflow-x: hidden;
   cursor: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 img {
@@ -1634,14 +1636,136 @@ html.lenis {
 }
 
 @media (max-width: 768px) {
-  .navbar { padding: 1.5rem 2rem; }
+  /* ── Reset touch-unfriendly stuff ── */
+  body { cursor: auto; }
+  button { cursor: auto; }
+  .cursor, .cursor-ring { display: none !important; }
+  .grain-overlay { display: none; }
+
+  /* ── Navbar ── */
+  .navbar {
+    padding: 1rem 1.2rem;
+    display: flex !important;
+    justify-content: space-between;
+    grid-template-columns: none;
+    width: calc(100% - 2rem);
+    top: 0.5rem;
+    border-radius: 60px;
+  }
   .navbar__nav { display: none; }
+  .navbar__logo { order: 0; }
+  .navbar__logo-wordmark { font-size: 1.4rem; letter-spacing: 0.25em; }
+  .navbar__logo-sub { font-size: 0.45rem; }
+
+  .navbar__hamburger {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: none;
+    border: none;
+    padding: 6px;
+    z-index: 1001;
+  }
+  .navbar__hamburger-line {
+    display: block;
+    width: 24px;
+    height: 1.5px;
+    background: var(--beige);
+    transition: transform 0.3s var(--ease-luxury), opacity 0.3s;
+  }
+  .navbar__hamburger-line.open:first-child {
+    transform: translateY(3.75px) rotate(45deg);
+  }
+  .navbar__hamburger-line.open:last-child {
+    transform: translateY(-3.75px) rotate(-45deg);
+  }
+
+  .navbar__mobile-menu {
+    position: fixed;
+    inset: 0;
+    background: rgba(86, 8, 6, 0.97);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .navbar__mobile-link {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    color: var(--beige);
+    text-transform: uppercase;
+  }
+
+  /* ── Hero ── */
+  /* ── Hero — critical mobile fixes ── */
+  .hero {
+    height: 100svh;
+    min-height: auto;
+    overflow: hidden;
+  }
+  .hero__content-inner { padding: 0 1.5rem; }
+  .hero__est { font-size: 0.5rem; letter-spacing: 0.35em; }
+  .hero__title { font-size: clamp(3rem, 16vw, 5.5rem); }
+  .hero__subtitle { font-size: clamp(0.65rem, 2.5vw, 0.85rem); letter-spacing: 0.4em; }
+  .hero__structure {
+    width: clamp(320px, 90vw, 600px) !important;
+    bottom: -20% !important;
+  }
+  .hero__structure img { max-height: 60vh; }
+  .hero__scroll-indicator { bottom: 1.5rem; }
+  .hero__scroll-text { font-size: 0.5rem; }
+  .hero__scroll-line { height: 40px; }
+
+  /* ── Philosophy / Marble / Values ── */
   .philosophy__inner { grid-template-columns: 1fr; gap: 2rem; }
   .marble-grid { grid-template-columns: 1fr; }
   .marble-card:nth-child(n) { grid-column: 1 / -1; grid-row: auto; aspect-ratio: 4/3; }
   .core-values__inner { grid-template-columns: 1fr; }
-  .footer__top { grid-template-columns: 1fr 1fr; gap: 3rem; }
-  .hero__cloud--left { width: 40%; }
-  .hero__cloud--right { width: 40%; }
+
+  /* ── Footer ── */
+  .footer { padding: 4rem 1.5rem 2rem; }
+  .footer__top { grid-template-columns: 1fr; gap: 2.5rem; }
+  .footer__brand-wordmark { font-size: 1.6rem; }
+  .footer__brand-sub { font-size: 0.7rem; }
+  .footer__brand-desc { font-size: 0.9rem; }
+  .footer__col-title { font-size: 0.75rem; margin-bottom: 1rem; }
+  .footer__col-links { gap: 0.8rem; }
+  .footer__col-links a { font-size: 0.9rem; }
+  .footer__bottom {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+    padding-top: 2rem;
+  }
+  .footer__copyright { font-size: 0.75rem; }
+  .footer__est { font-size: 0.9rem; }
+  .footer__bg-text { font-size: clamp(4rem, 22vw, 10rem); }
+
+  /* ── Footer marquee ── */
+  .marquee-section { padding: 1.8rem 0; }
+  .marquee-item { font-size: 1.1rem; padding: 0 2rem; gap: 1.5rem; }
+  .marquee-dot { width: 5px; height: 5px; }
+
   .scroll-video__content { width: 90%; padding: 3rem 2rem; }
+}
+
+/* ── Extra small phones ── */
+@media (max-width: 420px) {
+  .navbar { padding: 0.8rem 1rem; }
+  .navbar__logo-wordmark { font-size: 1.2rem; }
+  .navbar__mobile-link { font-size: 2rem; }
+  .footer__top { gap: 2rem; }
+  .footer { padding: 3rem 1rem 1.5rem; }
+}
+
+/* ── Hamburger: hidden on desktop ── */
+@media (min-width: 769px) {
+  .navbar__hamburger { display: none; }
+  .navbar__mobile-menu { display: none; }
 }

@@ -1,10 +1,12 @@
 import React, { useRef, useLayoutEffect } from 'react';
 import gsap from 'gsap';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 const TOP_ROW = ['Stone shaped by time', 'Marble as memory'];
 const BOTTOM_ROW = ['Light carved into form', 'The earth made eternal', 'Silence cast in stone'];
 
 const MarqueeManifesto: React.FC = () => {
+  const mob = useIsMobile();
   const sectionRef = useRef<HTMLElement>(null);
   const trackTopRef = useRef<HTMLDivElement>(null);
   const trackBottomRef = useRef<HTMLDivElement>(null);
@@ -79,8 +81,8 @@ const MarqueeManifesto: React.FC = () => {
       style={{
         position: 'relative',
         width: '100%',
-        height: 'clamp(4rem, 12vw, 16rem)',
-        marginTop: '-45vh',
+        height: mob ? 'clamp(2rem, 10vw, 6rem)' : 'clamp(4rem, 12vw, 16rem)',
+        marginTop: mob ? '-25vh' : '-45vh',
         marginBottom: 0,
         background: 'transparent',
         overflow: 'visible',
@@ -112,7 +114,7 @@ const MarqueeManifesto: React.FC = () => {
             <span
               style={{
                 fontFamily: '"PP Editorial New", "Didot", "Bodoni 72", "Playfair Display", Georgia, serif',
-                fontSize: 'clamp(4rem, 12vw, 16rem)',
+                fontSize: mob ? 'clamp(2rem, 8vw, 4rem)' : 'clamp(4rem, 12vw, 16rem)',
                 fontWeight: 400,
                 lineHeight: 1,
                 letterSpacing: '-0.01em',
@@ -131,7 +133,7 @@ const MarqueeManifesto: React.FC = () => {
                   width: '0.7em',
                   height: '0.7em',
                   flexShrink: 0,
-                  fontSize: 'clamp(4rem, 12vw, 16rem)',
+                  fontSize: mob ? 'clamp(2rem, 8vw, 4rem)' : 'clamp(4rem, 12vw, 16rem)',
                   color: '#560806',
                   willChange: 'transform',
                   transform: 'rotate(0deg)',
@@ -178,7 +180,7 @@ const MarqueeManifesto: React.FC = () => {
             <span
               style={{
                 fontFamily: '"PP Editorial New", "Didot", "Bodoni 72", "Playfair Display", Georgia, serif',
-                fontSize: 'clamp(4rem, 12vw, 16rem)',
+                fontSize: mob ? 'clamp(2rem, 8vw, 4rem)' : 'clamp(4rem, 12vw, 16rem)',
                 fontWeight: 400,
                 lineHeight: 1,
                 letterSpacing: '-0.01em',
@@ -197,7 +199,7 @@ const MarqueeManifesto: React.FC = () => {
                   width: '0.7em',
                   height: '0.7em',
                   flexShrink: 0,
-                  fontSize: 'clamp(4rem, 12vw, 16rem)',
+                  fontSize: mob ? 'clamp(2rem, 8vw, 4rem)' : 'clamp(4rem, 12vw, 16rem)',
                   color: '#560806',
                   willChange: 'transform',
                   transform: 'rotate(0deg)',

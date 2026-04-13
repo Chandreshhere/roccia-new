@@ -1,10 +1,12 @@
 import React, { useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Hero: React.FC = () => {
+  const mob = useIsMobile();
   const heroRef = useRef<HTMLElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
   const structureRef = useRef<HTMLDivElement>(null);
@@ -143,14 +145,14 @@ const Hero: React.FC = () => {
         <div className="hero__bg-gradient" />
       </div>
 
-      {/* Left cloud — fixed to viewport */}
+      {/* Left cloud */}
       <div
         ref={cloudLeftRef}
         style={{
-          position: 'fixed',
+          position: mob ? 'absolute' : 'fixed',
           left: '-2%',
-          top: '-2%',
-          width: '36%',
+          top: mob ? '-5%' : '-2%',
+          width: mob ? '50%' : '36%',
           zIndex: 1,
           pointerEvents: 'none',
         }}
@@ -158,14 +160,14 @@ const Hero: React.FC = () => {
         <img src="/assets/cloud-left.png" alt="" aria-hidden="true" draggable={false} style={{ width: '100%', display: 'block' }} />
       </div>
 
-      {/* Right cloud — fixed to viewport */}
+      {/* Right cloud */}
       <div
         ref={cloudRightRef}
         style={{
-          position: 'fixed',
+          position: mob ? 'absolute' : 'fixed',
           right: '-2%',
-          top: '-5%',
-          width: '36%',
+          top: mob ? '-8%' : '-5%',
+          width: mob ? '50%' : '36%',
           zIndex: 1,
           pointerEvents: 'none',
         }}
@@ -187,9 +189,9 @@ const Hero: React.FC = () => {
         ref={cloudBottomRef}
         style={{
           position: 'absolute',
-          bottom: '-62%',
+          bottom: mob ? '-40%' : '-62%',
           left: '50%',
-          width: '100vw',
+          width: mob ? '120%' : '100vw',
           zIndex: 20,
           pointerEvents: 'none',
         }}

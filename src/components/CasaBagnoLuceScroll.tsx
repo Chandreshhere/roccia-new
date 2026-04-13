@@ -1,5 +1,6 @@
 import React, { useRef, useLayoutEffect } from 'react';
 import gsap from 'gsap';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 // Import SVGs synchronously at build time
 import casaSvgRaw from '../assets/casa.svg?raw';
@@ -73,6 +74,7 @@ const CasaBagnoLuceScroll: React.FC = () => {
   const trackRef = useRef<HTMLDivElement>(null);
   const panelRefs = useRef<(HTMLDivElement | null)[]>([]);
   const svgContainerRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const mob = useIsMobile();
 
   useLayoutEffect(() => {
     // ── Inject SVGs synchronously ──
@@ -354,9 +356,9 @@ const CasaBagnoLuceScroll: React.FC = () => {
         style={{
           position: 'absolute',
           left: '50%',
-          top: '-55vh',
+          top: mob ? '-30vh' : '-55vh',
           transform: 'translateX(-50%)',
-          width: '120vw',
+          width: mob ? '130%' : '120vw',
           zIndex: 5,
           pointerEvents: 'none',
         }}
@@ -435,8 +437,8 @@ const CasaBagnoLuceScroll: React.FC = () => {
                       position: 'absolute',
                       left: `${img.x}%`,
                       top: `${img.y}%`,
-                      width: `${img.w}vw`,
-                      maxWidth: `${(img as { maxW?: number }).maxW ?? 560}px`,
+                      width: mob ? `${Math.min(img.w * 0.65, 40)}vw` : `${img.w}vw`,
+                      maxWidth: mob ? '200px' : `${(img as { maxW?: number }).maxW ?? 560}px`,
                       height: 'auto',
                       willChange: 'transform',
                       transform: initialTransform,
@@ -454,7 +456,7 @@ const CasaBagnoLuceScroll: React.FC = () => {
                   svgContainerRefs.current[i] = el;
                 }}
                 style={{
-                  width: 'clamp(280px, 32vw, 460px)',
+                  width: mob ? 'clamp(180px, 55vw, 280px)' : 'clamp(280px, 32vw, 460px)',
                   aspectRatio: '2/3',
                   filter: 'drop-shadow(0 20px 40px rgba(86,8,6,0.15))',
                   zIndex: 5,
@@ -467,9 +469,9 @@ const CasaBagnoLuceScroll: React.FC = () => {
                 className="cbl-panel-text"
                 style={{
                   position: 'absolute',
-                  left: `${item.text.x}%`,
-                  top: `${item.text.y}%`,
-                  maxWidth: '560px',
+                  left: mob ? '5%' : `${item.text.x}%`,
+                  top: mob ? (i === 0 ? '72%' : i === 1 ? '8%' : '70%') : `${item.text.y}%`,
+                  maxWidth: mob ? '65vw' : '560px',
                   zIndex: 4,
                   willChange: 'transform, opacity',
                   transform:
@@ -481,7 +483,7 @@ const CasaBagnoLuceScroll: React.FC = () => {
                   WebkitBackfaceVisibility: 'hidden',
                   color: i === 2 ? '#ffffff' : '#560806',
                   pointerEvents: 'none',
-                  fontSize: '1.75em',
+                  fontSize: mob ? '0.85em' : '1.75em',
                 }}
               >
                 <div
@@ -522,7 +524,7 @@ const CasaBagnoLuceScroll: React.FC = () => {
               </div>
 
               {/* Luce description — floats in right middle, slides in from right */}
-              {i === 2 && (
+              {i === 2 && !mob && (
                 <div
                   className="cbl-luce-desc"
                   style={{
@@ -570,7 +572,7 @@ const CasaBagnoLuceScroll: React.FC = () => {
               )}
 
               {/* Bagno description — floats in bottom-right, slides in from right */}
-              {i === 1 && (
+              {i === 1 && !mob && (
                 <div
                   className="cbl-bagno-desc"
                   style={{
@@ -618,7 +620,7 @@ const CasaBagnoLuceScroll: React.FC = () => {
               )}
 
               {/* Casa description — floats in top-right, slides up with panel */}
-              {i === 0 && (
+              {i === 0 && !mob && (
                 <div
                   className="cbl-casa-desc"
                   style={{

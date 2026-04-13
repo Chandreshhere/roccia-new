@@ -46,6 +46,7 @@ function getImgProgress(index: number, progress: number) {
 const KlingVideo: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [loadPct, setLoadPct] = useState(0);
+  const isMob = typeof window !== 'undefined' && window.innerWidth <= 768;
 
   const cloudLeftRef = useRef<HTMLDivElement>(null);
   const cloudRightRef = useRef<HTMLDivElement>(null);
@@ -109,7 +110,7 @@ const KlingVideo: React.FC = () => {
       h1.textContent = item.name;
       h1.style.opacity = index === 0 ? '1' : '0.35';
       h1.style.fontFamily = "'Cormorant Garamond', serif";
-      h1.style.fontSize = 'clamp(2.5rem, 5vw, 4.5rem)';
+      h1.style.fontSize = isMob ? 'clamp(1.6rem, 7vw, 2.5rem)' : 'clamp(2.5rem, 5vw, 4.5rem)';
       h1.style.fontWeight = '400';
       h1.style.letterSpacing = '0.08em';
       h1.style.lineHeight = '1';
@@ -490,11 +491,13 @@ const KlingVideo: React.FC = () => {
         style={{
           position: 'absolute',
           top: 0,
-          left: '15vw',
+          left: isMob ? '5vw' : '15vw',
           width: '100%',
           height: '100%',
           overflow: 'hidden',
-          clipPath: 'polygon(50vh 0px, 0px 50%, 50vh 100%, 100% calc(100% + 100vh), 100% -100vh)',
+          clipPath: isMob
+            ? 'polygon(30vh 0px, 0px 50%, 30vh 100%, 100% calc(100% + 100vh), 100% -100vh)'
+            : 'polygon(50vh 0px, 0px 50%, 50vh 100%, 100% calc(100% + 100vh), 100% -100vh)',
           zIndex: 15,
           pointerEvents: 'none',
           opacity: 0,
@@ -520,8 +523,8 @@ const KlingVideo: React.FC = () => {
           position: 'absolute',
           top: 0,
           right: 0,
-          width: '50%',
-          minWidth: '300px',
+          width: isMob ? '40%' : '50%',
+          minWidth: isMob ? '120px' : '300px',
           height: '100%',
           zIndex: 16,
           pointerEvents: 'none',
