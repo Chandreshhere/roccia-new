@@ -66,16 +66,23 @@ const Footer: React.FC = () => {
       let p = (start - rect.top) / range;
       p = p < 0 ? 0 : p > 1 ? 1 : p;
       const eased = 1 - Math.pow(1 - p, 2);
+      const isMob = window.innerWidth <= 768;
       const startY = 75;
-      const endY = 18;
+      const endY = isMob ? 20 : 18;
       const y = startY + (endY - startY) * eased;
-      wrap.style.transform = `translate3d(-50%, ${y}vh, 0)`;
+      wrap.style.transform = isMob ? `translate3d(0, ${y}vh, 0)` : `translate3d(-50%, ${y}vh, 0)`;
       wrap.style.opacity = String(Math.min(1, eased * 1.3));
-      // Reveal from bottom upward — clip the top of the box, shrinking as p grows
-      const clipTop = (1 - eased) * 100;
-      const clipStr = `inset(${clipTop}% 0 0 0)`;
-      wrap.style.clipPath = clipStr;
-      (wrap.style as CSSStyleDeclaration & { WebkitClipPath?: string }).WebkitClipPath = clipStr;
+      if (isMob) {
+        // No clip on mobile — show full statue
+        wrap.style.clipPath = 'none';
+        (wrap.style as CSSStyleDeclaration & { WebkitClipPath?: string }).WebkitClipPath = 'none';
+      } else {
+        // Reveal from bottom upward — clip the top of the box, shrinking as p grows
+        const clipTop = (1 - eased) * 100;
+        const clipStr = `inset(${clipTop}% 0 0 0)`;
+        wrap.style.clipPath = clipStr;
+        (wrap.style as CSSStyleDeclaration & { WebkitClipPath?: string }).WebkitClipPath = clipStr;
+      }
     };
 
     handleScroll();
@@ -125,15 +132,16 @@ const Footer: React.FC = () => {
           ref={statueWrapRef}
           style={{
             position: 'absolute',
-            left: '50%',
             bottom: 0,
-            width: mob ? 'min(65vw, 300px)' : 'min(46vw, 620px)',
-            height: mob ? 'min(55vh, 400px)' : 'min(72vh, 820px)',
+            left: mob ? 'auto' : '50%',
+            right: mob ? '0%' : 'auto',
+            width: mob ? '100vw' : 'min(46vw, 620px)',
+            height: mob ? '60vh' : 'min(72vh, 820px)',
             transform: 'translate3d(-50%, 55vh, 0)',
             opacity: 0,
             pointerEvents: 'none',
             willChange: 'transform, opacity, clip-path',
-            zIndex: 1,
+            zIndex: mob ? 5 : 1,
             clipPath: 'inset(100% 0 0 0)',
             WebkitClipPath: 'inset(100% 0 0 0)',
           }}
@@ -198,43 +206,47 @@ const Footer: React.FC = () => {
             <p className="footer__copyright">
               © {new Date().getFullYear()} House of Roccia. All rights reserved.
             </p>
-            <div
-              style={{
-                display: 'flex',
-                gap: '2rem',
-                alignItems: 'center',
-              }}
-            >
-              <a
-                href="#"
-                style={{
-                  fontFamily: 'Lato, sans-serif',
-                  fontSize: '0.85rem',
-                  fontWeight: 300,
-                  letterSpacing: '0.2em',
-                  color: 'rgba(220,209,191,0.45)',
-                  textTransform: 'uppercase',
-                  transition: 'color 0.3s',
-                }}
-              >
-                Privacy
-              </a>
-              <a
-                href="#"
-                style={{
-                  fontFamily: 'Lato, sans-serif',
-                  fontSize: '0.85rem',
-                  fontWeight: 300,
-                  letterSpacing: '0.2em',
-                  color: 'rgba(220,209,191,0.45)',
-                  textTransform: 'uppercase',
-                  transition: 'color 0.3s',
-                }}
-              >
-                Terms
-              </a>
-            </div>
-            <p className="footer__est">EST. 1994</p>
+            {!mob && (
+              <>
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: '2rem',
+                    alignItems: 'center',
+                  }}
+                >
+                  <a
+                    href="#"
+                    style={{
+                      fontFamily: 'Lato, sans-serif',
+                      fontSize: '0.85rem',
+                      fontWeight: 300,
+                      letterSpacing: '0.2em',
+                      color: 'rgba(220,209,191,0.45)',
+                      textTransform: 'uppercase',
+                      transition: 'color 0.3s',
+                    }}
+                  >
+                    Privacy
+                  </a>
+                  <a
+                    href="#"
+                    style={{
+                      fontFamily: 'Lato, sans-serif',
+                      fontSize: '0.85rem',
+                      fontWeight: 300,
+                      letterSpacing: '0.2em',
+                      color: 'rgba(220,209,191,0.45)',
+                      textTransform: 'uppercase',
+                      transition: 'color 0.3s',
+                    }}
+                  >
+                    Terms
+                  </a>
+                </div>
+                <p className="footer__est">EST. 1994</p>
+              </>
+            )}
           </div>
         </div>
       </footer>

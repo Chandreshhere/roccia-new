@@ -46,7 +46,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
@@ -54,7 +54,7 @@ body {
   color: var(--frost);
   font-family: var(--font-body);
   font-weight: 300;
-  overflow-x: hidden;
+  overflow-x: clip;
   cursor: none;
   -webkit-overflow-scrolling: touch;
 }
@@ -232,11 +232,11 @@ html.lenis {
   max-width: 1400px;
   z-index: 1000;
   padding: 1.2rem 3rem;
-  display: grid;
+  display: grid !important;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   border-radius: 100px;
-  transition: all 0.5s var(--ease-luxury);
+  transition: opacity 0.5s var(--ease-luxury), transform 0.5s var(--ease-luxury);
   will-change: transform;
 }
 
@@ -278,11 +278,11 @@ html.lenis {
   list-style: none;
 }
 
-.navbar__nav:first-child {
+.navbar__nav:first-of-type {
   justify-self: start;
 }
 
-.navbar__nav:last-child {
+.navbar__nav:last-of-type {
   justify-self: end;
 }
 
@@ -1646,7 +1646,7 @@ html.lenis {
   .navbar {
     padding: 1rem 1.2rem;
     display: flex !important;
-    justify-content: space-between;
+    justify-content: center;
     grid-template-columns: none;
     width: calc(100% - 2rem);
     top: 0.5rem;
@@ -1655,7 +1655,7 @@ html.lenis {
   .navbar__nav { display: none; }
   .navbar__logo { order: 0; }
   .navbar__logo-wordmark { font-size: 1.4rem; letter-spacing: 0.25em; }
-  .navbar__logo-sub { font-size: 0.45rem; }
+  .navbar__logo-sub { font-size: 0.5rem; font-weight: 600; color: rgba(220, 209, 191, 0.9); }
 
   .navbar__hamburger {
     display: flex;
@@ -1707,20 +1707,27 @@ html.lenis {
   .hero {
     height: 100svh;
     min-height: auto;
-    overflow: hidden;
+    overflow: visible;
   }
   .hero__content-inner { padding: 0 1.5rem; }
-  .hero__est { font-size: 0.5rem; letter-spacing: 0.35em; }
+  .hero__est { display: none; }
   .hero__title { font-size: clamp(3rem, 16vw, 5.5rem); }
-  .hero__subtitle { font-size: clamp(0.65rem, 2.5vw, 0.85rem); letter-spacing: 0.4em; }
+  .hero__subtitle { display: none; }
   .hero__structure {
-    width: clamp(320px, 90vw, 600px) !important;
-    bottom: -20% !important;
+    width: clamp(400px, 110vw, 800px) !important;
+    bottom: 18% !important;
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
   }
-  .hero__structure img { max-height: 60vh; }
   .hero__scroll-indicator { bottom: 1.5rem; }
   .hero__scroll-text { font-size: 0.5rem; }
   .hero__scroll-line { height: 40px; }
+
+  /* ── Hero spacer — minimize on mobile ── */
+  .hero-spacer {
+    height: 0px !important;
+    margin-bottom: -1px;
+  }
 
   /* ── Philosophy / Marble / Values ── */
   .philosophy__inner { grid-template-columns: 1fr; gap: 2rem; }
@@ -1729,11 +1736,50 @@ html.lenis {
   .core-values__inner { grid-template-columns: 1fr; }
 
   /* ── Footer ── */
-  .footer { padding: 4rem 1.5rem 2rem; }
-  .footer__top { grid-template-columns: 1fr; gap: 2.5rem; }
+  .footer {
+    padding: 4rem 2rem 2rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: clip !important;
+    overflow-y: clip !important;
+    padding: 4rem 0 2rem 2rem;
+  }
+  .footer__top {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    padding-bottom: 3rem;
+  }
+  .footer__brand {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .footer__brand-logo {
+    align-items: center;
+  }
   .footer__brand-wordmark { font-size: 1.6rem; }
   .footer__brand-sub { font-size: 0.7rem; }
-  .footer__brand-desc { font-size: 0.9rem; }
+  .footer__brand-desc {
+    font-size: 0.9rem;
+    text-align: center;
+    max-width: 30ch;
+  }
+  .footer__social {
+    justify-content: center;
+  }
+  /* Collections — left */
+  .footer__top > div:nth-child(2) { text-align: left; grid-row: 2; grid-column: 1; }
+  .footer__top > div:nth-child(2) .footer__col-links { align-items: flex-start; }
+  /* Company — left, below collections */
+  .footer__top > div:nth-child(3) { text-align: left; grid-row: 3; grid-column: 1; }
+  .footer__top > div:nth-child(3) .footer__col-links { align-items: flex-start; }
+  /* Contact — right, spans rows */
+  .footer__top > div:nth-child(4) { text-align: right; grid-row: 2 / 4; grid-column: 2; }
+  .footer__top > div:nth-child(4) .footer__col-links { align-items: flex-end; }
   .footer__col-title { font-size: 0.75rem; margin-bottom: 1rem; }
   .footer__col-links { gap: 0.8rem; }
   .footer__col-links a { font-size: 0.9rem; }
@@ -1741,11 +1787,24 @@ html.lenis {
     flex-direction: column;
     gap: 1.5rem;
     text-align: center;
-    padding-top: 2rem;
+    padding-top: 0;
+    margin-top: -2rem;
+    align-items: center;
+    position: relative;
+    z-index: 0;
   }
   .footer__copyright { font-size: 0.75rem; }
   .footer__est { font-size: 0.9rem; }
-  .footer__bg-text { font-size: clamp(4rem, 22vw, 10rem); }
+  .footer__bg-text {
+    font-size: clamp(4rem, 22vw, 10rem);
+    bottom: 32%;
+    right: -5%;
+    left: auto;
+    transform: none;
+    color: rgba(220, 209, 191, 0.06);
+    writing-mode: vertical-rl;
+    letter-spacing: 0.4em;
+  }
 
   /* ── Footer marquee ── */
   .marquee-section { padding: 1.8rem 0; }
@@ -1764,8 +1823,11 @@ html.lenis {
   .footer { padding: 3rem 1rem 1.5rem; }
 }
 
-/* ── Hamburger: hidden on desktop ── */
-@media (min-width: 769px) {
-  .navbar__hamburger { display: none; }
-  .navbar__mobile-menu { display: none; }
+/* ── Hamburger & mobile menu: always hidden by default, shown only in mobile media query ── */
+.navbar__hamburger { display: none !important; }
+.navbar__mobile-menu { display: none !important; }
+
+@media (max-width: 768px) {
+  .navbar__hamburger { display: none !important; }
+  .navbar__mobile-menu { display: none !important; }
 }

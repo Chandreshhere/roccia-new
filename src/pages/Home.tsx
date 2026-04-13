@@ -9,6 +9,7 @@ const Home: React.FC = () => {
     <>
       <Hero />
       <section
+        className="hero-spacer"
         style={{
           position: 'relative',
           width: '100%',

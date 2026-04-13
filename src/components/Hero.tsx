@@ -52,12 +52,12 @@ const Hero: React.FC = () => {
 
       // Structure lifts upward — stops when reaching the white section
       gsap.to(structureRef.current, {
-        yPercent: -18,
+        yPercent: mob ? -3 : -18,
         ease: 'none',
         scrollTrigger: {
           trigger: hero,
           start: 'top top',
-          end: '55% top',
+          end: mob ? '25% top' : '55% top',
           scrub: 0.6,
         },
       });
@@ -151,8 +151,8 @@ const Hero: React.FC = () => {
         style={{
           position: mob ? 'absolute' : 'fixed',
           left: '-2%',
-          top: mob ? '-5%' : '-2%',
-          width: mob ? '50%' : '36%',
+          top: mob ? '12%' : '4%',
+          width: mob ? '60%' : '36%',
           zIndex: 1,
           pointerEvents: 'none',
         }}
@@ -166,8 +166,8 @@ const Hero: React.FC = () => {
         style={{
           position: mob ? 'absolute' : 'fixed',
           right: '-2%',
-          top: mob ? '-8%' : '-5%',
-          width: mob ? '50%' : '36%',
+          top: mob ? '22%' : '1%',
+          width: mob ? '60%' : '36%',
           zIndex: 1,
           pointerEvents: 'none',
         }}
@@ -189,9 +189,9 @@ const Hero: React.FC = () => {
         ref={cloudBottomRef}
         style={{
           position: 'absolute',
-          bottom: mob ? '-40%' : '-62%',
+          bottom: mob ? '0%' : '-62%',
           left: '50%',
-          width: mob ? '120%' : '100vw',
+          width: mob ? '160vw' : '100vw',
           zIndex: 20,
           pointerEvents: 'none',
         }}
@@ -206,6 +206,7 @@ const Hero: React.FC = () => {
             display: 'block',
             maskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)',
             WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)',
+            opacity: mob ? 0.9 : 1,
           }}
         />
       </div>
@@ -217,8 +218,8 @@ const Hero: React.FC = () => {
           bottom: 0,
           left: 0,
           right: 0,
-          height: '22%',
-          zIndex: 3,
+          height: mob ? '30%' : '22%',
+          zIndex: mob ? 4 : 3,
           pointerEvents: 'none',
           background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 25%, rgba(255,255,255,0.65) 50%, rgba(255,255,255,0.9) 75%, #ffffff 100%)',
           backdropFilter: 'blur(6px)',

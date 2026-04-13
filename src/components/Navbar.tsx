@@ -33,13 +33,20 @@ const Navbar: React.FC = () => {
         const currentY = window.scrollY;
         const goingDown = currentY > lastScrollY;
         const pastThreshold = currentY > 100;
+        const isMob = window.innerWidth <= 768;
+        const pastHero = currentY > window.innerHeight * 0.8;
 
-        if (goingDown && pastThreshold) {
+        if (isMob && pastHero) {
+          nav.style.transform = 'translateX(-50%) translateY(-120px)';
+          nav.style.opacity = '0';
+          nav.style.pointerEvents = 'none';
+        } else if (goingDown && pastThreshold) {
           nav.style.transform = 'translateX(-50%) translateY(-120px)';
           nav.style.opacity = '0';
         } else {
           nav.style.transform = 'translateX(-50%) translateY(0)';
           nav.style.opacity = '1';
+          nav.style.pointerEvents = 'auto';
         }
 
         // Floating style

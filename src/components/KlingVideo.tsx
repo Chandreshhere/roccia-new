@@ -72,11 +72,11 @@ const KlingVideo: React.FC = () => {
     stride: 2,
   });
 
-  // Birds video — second canvas scrub (contain fit, no crop)
+  // Birds video — second canvas scrub (cover fit, matches kling video)
   const birdsScrub = useCanvasScrub({
     frameDir: `${FRAME_BASE}/assets/frames-birds`,
     frameCount: BIRDS_FRAME_COUNT,
-    fit: 'contain',
+    fit: 'cover',
     stride: 2,
   });
 
@@ -491,7 +491,7 @@ const KlingVideo: React.FC = () => {
         style={{
           position: 'absolute',
           top: 0,
-          left: isMob ? '5vw' : '15vw',
+          left: isMob ? '-8vw' : '15vw',
           width: '100%',
           height: '100%',
           overflow: 'hidden',
@@ -523,7 +523,7 @@ const KlingVideo: React.FC = () => {
           position: 'absolute',
           top: 0,
           right: 0,
-          width: isMob ? '40%' : '50%',
+          width: isMob ? '60%' : '50%',
           minWidth: isMob ? '120px' : '300px',
           height: '100%',
           zIndex: 16,
@@ -531,7 +531,7 @@ const KlingVideo: React.FC = () => {
         }}
       />
 
-      {/* Discover header */}
+      {/* Discover header — desktop only */}
       <div
         ref={headerRef}
         style={{
@@ -542,6 +542,7 @@ const KlingVideo: React.FC = () => {
           opacity: 0,
           zIndex: 17,
           transition: 'opacity 0.3s ease',
+          display: isMob ? 'none' : 'block',
         }}
       >
         <p style={{
@@ -560,8 +561,8 @@ const KlingVideo: React.FC = () => {
         style={{
           position: 'absolute',
           top: 0,
-          left: '15vw',
-          width: '50vh',
+          left: isMob ? '-8vw' : '15vw',
+          width: isMob ? '30vh' : '50vh',
           height: '100%',
           zIndex: 18,
           pointerEvents: 'none',
@@ -575,7 +576,7 @@ const KlingVideo: React.FC = () => {
           width: '0%',
           height: '50%',
           borderBottom: '1px solid rgba(220,209,191,0.3)',
-          transform: 'skewY(-45deg)',
+          transform: isMob ? 'skewY(-59deg)' : 'skewY(-45deg)',
           transformOrigin: 'bottom left',
           pointerEvents: 'none',
           transition: 'none',
@@ -587,7 +588,7 @@ const KlingVideo: React.FC = () => {
           width: '0%',
           height: '50%',
           borderTop: '1px solid rgba(220,209,191,0.3)',
-          transform: 'skewY(45deg)',
+          transform: isMob ? 'skewY(59deg)' : 'skewY(45deg)',
           transformOrigin: 'top left',
           pointerEvents: 'none',
           transition: 'none',
@@ -618,10 +619,10 @@ const KlingVideo: React.FC = () => {
           draggable={false}
           style={{
             position: 'absolute',
-            top: 0,
+            top: isMob ? '15%' : 0,
             left: '50%',
             transform: 'translateX(-50%)',
-            width: '110vw',
+            width: isMob ? '250vw' : '110vw',
             maxWidth: 'none',
             zIndex: 2,
             maskImage: 'linear-gradient(to top, transparent 0%, black 20%, black 55%, transparent 100%)',

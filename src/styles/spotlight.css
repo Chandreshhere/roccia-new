@@ -13,6 +13,14 @@
   object-fit: cover;
 }
 
+@media (max-width: 768px) {
+  .spotlight-img {
+    width: 170px;
+    height: 130px;
+    border-radius: 0.6rem;
+  }
+}
+
 .spotlight h1 {
   color: var(--frost);
   opacity: 0.35;

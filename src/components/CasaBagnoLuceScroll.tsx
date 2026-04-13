@@ -144,26 +144,38 @@ const CasaBagnoLuceScroll: React.FC = () => {
      *   0.25 – 0.60  Track moves Casa → Bagno, Bagno DRAWS while sliding in
      *   0.60 – 1.00  Track moves Bagno → Luce, Luce DRAWS while sliding in
      */
+    const isMob = window.innerWidth <= 768;
     const PHASES = [
-      { kind: 'draw',     panel: 0, start: 0.00, end: 0.25 },
-      { kind: 'moveDraw', from: 0,  to: 1, drawPanel: 1, start: 0.25, end: 0.60 },
-      { kind: 'moveDraw', from: 1,  to: 2, drawPanel: 2, start: 0.60, end: 1.00 },
+      { kind: 'draw',     panel: 0, start: 0.00, end: isMob ? 0.20 : 0.25 },
+      { kind: 'moveDraw', from: 0,  to: 1, drawPanel: 1, start: isMob ? 0.20 : 0.25, end: isMob ? 0.48 : 0.60 },
+      { kind: 'moveDraw', from: 1,  to: 2, drawPanel: 2, start: isMob ? 0.48 : 0.60, end: isMob ? 0.75 : 1.00 },
     ] as const;
 
     const render = (rawProgress: number) => {
       const vw = window.innerWidth;
 
-      // Background transition white → black during last 5% of scroll
-      const bgTransitionStart = 0.95;
-      if (rawProgress >= bgTransitionStart) {
-        const bgP = Math.min((rawProgress - bgTransitionStart) / (1 - bgTransitionStart), 1);
-        const v = Math.round((1 - bgP) * 255);
-        const bgColor = `rgb(${v}, ${v}, ${v})`;
-        section.style.background = bgColor;
-        sticky.style.background = bgColor;
+      // Background transition white → black
+      if (isMob) {
+        // Snap to black once Luce is centered
+        if (rawProgress >= 0.76) {
+          section.style.background = '#000000';
+          sticky.style.background = '#000000';
+        } else {
+          section.style.background = '#ffffff';
+          sticky.style.background = '#ffffff';
+        }
       } else {
-        section.style.background = '#ffffff';
-        sticky.style.background = '#ffffff';
+        const bgTransitionStart = 0.95;
+        if (rawProgress >= bgTransitionStart) {
+          const bgP = Math.min((rawProgress - bgTransitionStart) / (1 - bgTransitionStart), 1);
+          const v = Math.round((1 - bgP) * 255);
+          const bgColor = `rgb(${v}, ${v}, ${v})`;
+          section.style.background = bgColor;
+          sticky.style.background = bgColor;
+        } else {
+          section.style.background = '#ffffff';
+          sticky.style.background = '#ffffff';
+        }
       }
 
       // ── Determine current track X + per-panel draw progress ──
@@ -237,11 +249,10 @@ const CasaBagnoLuceScroll: React.FC = () => {
           }
         });
 
-        // Text block — matches panel's entry direction
-        const textEl = panel.querySelector('.cbl-panel-text') as HTMLElement | null;
-        if (textEl) {
+        // Text blocks — matches panel's entry direction
+        const textEls = panel.querySelectorAll('.cbl-panel-text') as NodeListOf<HTMLElement>;
+        textEls.forEach((textEl) => {
           if (i === 0) {
-            // Casa text — slides up from bottom, slightly after the images
             const slideP = Math.max(0, Math.min(1, (rawProgress - 0.08) / (0.22 - 0.08)));
             const eased = 1 - (1 - slideP) * (1 - slideP);
             const slideY = (1 - eased) * vh * 0.5;
@@ -249,7 +260,6 @@ const CasaBagnoLuceScroll: React.FC = () => {
             textEl.style.transform = `translate3d(0, ${slideY}px, 0)`;
             textEl.style.opacity = String(opacity);
           } else {
-            // Bagno & Luce text — slide from right, slightly after the images
             const enterP = Math.max(0, Math.min(1, (localP - 0.2) / (1 - 0.2)));
             const eased = 1 - Math.pow(1 - enterP, 3);
             const slideX = (1 - eased) * vw * 0.8;
@@ -257,7 +267,7 @@ const CasaBagnoLuceScroll: React.FC = () => {
             textEl.style.transform = `translate3d(${slideX}px, 0, 0)`;
             textEl.style.opacity = String(opacity);
           }
-        }
+        });
 
         // Casa-only floating description in top-right
         if (i === 0) {
@@ -316,7 +326,7 @@ const CasaBagnoLuceScroll: React.FC = () => {
         position: 'relative',
         width: '100%',
         // Total scrollable height = enough for all 3 panels + transition space
-        height: '400vh',
+        height: mob ? '500vh' : '400vh',
         background: 'transparent',
       }}
     >
@@ -435,16 +445,18 @@ const CasaBagnoLuceScroll: React.FC = () => {
                     data-speed={img.speed}
                     style={{
                       position: 'absolute',
-                      left: `${img.x}%`,
-                      top: `${img.y}%`,
-                      width: mob ? `${Math.min(img.w * 0.65, 40)}vw` : `${img.w}vw`,
-                      maxWidth: mob ? '200px' : `${(img as { maxW?: number }).maxW ?? 560}px`,
+                      left: mob ? (i === 0 ? `${img.x + (img.y > 50 ? -8 : img.y > 10 ? 4 : 0)}%` : `${img.x + (img.y > 50 ? 25 : img.y > 10 ? (i === 2 && img.src.includes('12.png') ? 15 : 5) : 0)}%`) : `${img.x}%`,
+                      top: mob ? (i === 0 ? `${img.y + (img.y > 50 ? 15 : img.y > 10 ? 26 : 0)}%` : `${img.y + (img.y > 50 ? (i === 2 ? 20 : 27) : img.y > 10 ? (i === 2 ? 50 : 22) : i === 1 ? 12 : i === 2 ? 4 : -12)}%`) : `${img.y}%`,
+                      width: mob ? `${img.w * (i === 2 && img.src.includes('12.png') ? 2.2 : i === 2 && img.y <= 10 ? 2 : 1.6)}vw` : `${img.w}vw`,
+                      maxWidth: mob ? 'none' : `${(img as { maxW?: number }).maxW ?? 560}px`,
                       height: 'auto',
                       willChange: 'transform',
                       transform: initialTransform,
                       backfaceVisibility: 'hidden',
                       WebkitBackfaceVisibility: 'hidden',
                       zIndex: 3,
+                      scale: mob && i === 2 && img.src.includes('12.png') ? '-1 1' : undefined,
+                      display: mob && img.src.includes('right top.png') ? 'none' : undefined,
                     }}
                   />
                 );
@@ -522,6 +534,42 @@ const CasaBagnoLuceScroll: React.FC = () => {
                   {item.text.title}
                 </div>
               </div>
+
+              {/* Description — mobile only, top right */}
+              {mob && (
+                <div
+                  className="cbl-panel-text"
+                  style={{
+                    position: 'absolute',
+                    right: '5%',
+                    top: '8%',
+                    maxWidth: '45vw',
+                    zIndex: 4,
+                    willChange: 'transform, opacity',
+                    transform: i === 0 ? 'translate3d(0, 50vh, 0)' : 'translate3d(80vw, 0, 0)',
+                    opacity: 0,
+                    backfaceVisibility: 'hidden',
+                    WebkitBackfaceVisibility: 'hidden',
+                    color: i === 2 ? '#ffffff' : '#560806',
+                    pointerEvents: 'none',
+                    textAlign: 'right',
+                  }}
+                >
+                  <p
+                    style={{
+                      fontFamily: '"Cormorant Garamond", serif',
+                      fontSize: '0.85rem',
+                      lineHeight: 1.5,
+                      fontStyle: 'italic',
+                      opacity: 0.75,
+                      margin: 0,
+                      fontWeight: 400,
+                    }}
+                  >
+                    {item.text.desc}
+                  </p>
+                </div>
+              )}
 
               {/* Luce description — floats in right middle, slides in from right */}
               {i === 2 && !mob && (

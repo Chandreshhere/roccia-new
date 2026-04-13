@@ -27,8 +27,9 @@ const AngelStatue: React.FC = () => {
     scene.background = null;
 
     // Camera — front facing, wider FOV so the full statue fits vertically
-    const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
-    camera.position.set(0, 0, 6);
+    const isMob = window.innerWidth <= 768;
+    const camera = new THREE.PerspectiveCamera(isMob ? 50 : 42, width / height, 0.1, 100);
+    camera.position.set(isMob ? -1 : 0, 0, isMob ? 4.5 : 6);
 
     // Renderer — lower DPR for performance
     const renderer = new THREE.WebGLRenderer({
@@ -108,12 +109,14 @@ const AngelStatue: React.FC = () => {
     );
     observer.observe(mount);
 
-    // Render only when needed — no continuous rAF if nothing changes
+    // Render with auto rotation
     let rafId: number;
     const animate = () => {
-      if (isVisible && needsRender) {
+      if (isVisible) {
+        if (model) {
+          model.rotation.y += 0.003;
+        }
         renderer.render(scene, camera);
-        needsRender = false; // Only re-render when container resizes / model changes
       }
       rafId = requestAnimationFrame(animate);
     };

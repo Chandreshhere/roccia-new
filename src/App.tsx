@@ -214,12 +214,12 @@ const PageLoader: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
           textAnchor="middle"
           dominantBaseline="middle"
           fill="none"
-          stroke="rgba(220, 209, 191, 0.7)"
-          strokeWidth="0.3"
+          stroke="rgba(220, 209, 191, 0.9)"
+          strokeWidth="0.5"
           style={{
             fontFamily: 'Lato, sans-serif',
             fontSize: '10px',
-            fontWeight: 300,
+            fontWeight: 500,
             letterSpacing: '0.5em',
             textTransform: 'uppercase',
           }}
