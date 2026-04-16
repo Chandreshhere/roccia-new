@@ -24,10 +24,52 @@ const PageLoader: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
     const loader = loaderRef.current;
     if (!svg || !loader) return;
 
-    // Get all stroked paths for draw animation
-    const paths = svg.querySelectorAll('path, rect, line, circle');
-    paths.forEach((el) => {
-      const pathEl = el as SVGGeometryElement;
+    // Collect all drawable elements and sort by distance from SVG center
+    // so the draw animation radiates outward from the middle.
+    const CENTER_X = 130;
+    const CENTER_Y = 170;
+
+    const elementCenter = (el: SVGGeometryElement): { x: number; y: number } => {
+      const tag = el.tagName.toLowerCase();
+      if (tag === 'circle') {
+        return {
+          x: parseFloat(el.getAttribute('cx') || '0'),
+          y: parseFloat(el.getAttribute('cy') || '0'),
+        };
+      }
+      if (tag === 'rect') {
+        const x = parseFloat(el.getAttribute('x') || '0');
+        const y = parseFloat(el.getAttribute('y') || '0');
+        const w = parseFloat(el.getAttribute('width') || '0');
+        const h = parseFloat(el.getAttribute('height') || '0');
+        return { x: x + w / 2, y: y + h / 2 };
+      }
+      if (tag === 'line') {
+        const x1 = parseFloat(el.getAttribute('x1') || '0');
+        const x2 = parseFloat(el.getAttribute('x2') || '0');
+        const y1 = parseFloat(el.getAttribute('y1') || '0');
+        const y2 = parseFloat(el.getAttribute('y2') || '0');
+        return { x: (x1 + x2) / 2, y: (y1 + y2) / 2 };
+      }
+      try {
+        const bb = el.getBBox();
+        return { x: bb.x + bb.width / 2, y: bb.y + bb.height / 2 };
+      } catch {
+        return { x: CENTER_X, y: CENTER_Y };
+      }
+    };
+
+    const ranked = Array.from(svg.querySelectorAll('path, rect, line, circle'))
+      .map((node) => {
+        const el = node as SVGGeometryElement;
+        const { x, y } = elementCenter(el);
+        return { el, dist: Math.hypot(x - CENTER_X, y - CENTER_Y) };
+      })
+      .sort((a, b) => a.dist - b.dist);
+
+    const paths = ranked.map(({ el }) => el);
+
+    paths.forEach((pathEl) => {
       if (pathEl.getTotalLength) {
         const len = pathEl.getTotalLength();
         gsap.set(pathEl, {
@@ -40,7 +82,7 @@ const PageLoader: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
 
     const tl = gsap.timeline();
 
-    // Phase 1: Draw the logo stroke by stroke
+    // Phase 1: Draw the logo from the center outward
     tl.to(paths, {
       strokeDashoffset: 0,
       duration: 0.9,
@@ -126,49 +168,119 @@ const PageLoader: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
         gap: '1.5rem',
       }}
     >
-      {/* SVG Logo — draw animation */}
+      {/* SVG Logo — draw animation (ornate arched double-door) */}
       <svg
         ref={svgRef}
-        width="70"
-        height="88"
-        viewBox="0 0 80 100"
+        width="200"
+        height="260"
+        viewBox="0 0 260 340"
         fill="none"
       >
-        {/* Arch */}
-        <path d="M18 38 Q18 10 40 10 Q62 10 62 38" stroke="#dcd1bf" strokeWidth="1.5" fill="none" opacity="0" />
-        {/* Sunburst */}
-        <line x1="40" y1="12" x2="40" y2="24" stroke="#dcd1bf" strokeWidth="1" opacity="0" />
-        <line x1="30" y1="14" x2="34" y2="24" stroke="#dcd1bf" strokeWidth="0.8" opacity="0" />
-        <line x1="50" y1="14" x2="46" y2="24" stroke="#dcd1bf" strokeWidth="0.8" opacity="0" />
-        <line x1="23" y1="20" x2="28" y2="27" stroke="#dcd1bf" strokeWidth="0.7" opacity="0" />
-        <line x1="57" y1="20" x2="52" y2="27" stroke="#dcd1bf" strokeWidth="0.7" opacity="0" />
-        {/* Left door */}
-        <rect x="18" y="38" width="20" height="50" stroke="#dcd1bf" strokeWidth="1.5" fill="none" opacity="0" />
-        <rect x="21" y="41" width="14" height="22" stroke="#dcd1bf" strokeWidth="0.8" fill="none" opacity="0" />
-        {/* Left lattice */}
-        <line x1="24" y1="41" x2="24" y2="63" stroke="#dcd1bf" strokeWidth="0.5" opacity="0" />
-        <line x1="28" y1="41" x2="28" y2="63" stroke="#dcd1bf" strokeWidth="0.5" opacity="0" />
-        <line x1="32" y1="41" x2="32" y2="63" stroke="#dcd1bf" strokeWidth="0.5" opacity="0" />
-        <line x1="21" y1="47" x2="35" y2="47" stroke="#dcd1bf" strokeWidth="0.5" opacity="0" />
-        <line x1="21" y1="53" x2="35" y2="53" stroke="#dcd1bf" strokeWidth="0.5" opacity="0" />
-        <line x1="21" y1="57" x2="35" y2="57" stroke="#dcd1bf" strokeWidth="0.5" opacity="0" />
-        {/* Left lower */}
-        <rect x="21" y="67" width="14" height="16" stroke="#dcd1bf" strokeWidth="0.8" fill="none" opacity="0" />
-        {/* Right door */}
-        <rect x="42" y="38" width="20" height="50" stroke="#dcd1bf" strokeWidth="1.5" fill="none" opacity="0" />
-        <rect x="45" y="41" width="14" height="22" stroke="#dcd1bf" strokeWidth="0.8" fill="none" opacity="0" />
-        {/* Right lattice */}
-        <line x1="48" y1="41" x2="48" y2="63" stroke="#dcd1bf" strokeWidth="0.5" opacity="0" />
-        <line x1="52" y1="41" x2="52" y2="63" stroke="#dcd1bf" strokeWidth="0.5" opacity="0" />
-        <line x1="56" y1="41" x2="56" y2="63" stroke="#dcd1bf" strokeWidth="0.5" opacity="0" />
-        <line x1="45" y1="47" x2="59" y2="47" stroke="#dcd1bf" strokeWidth="0.5" opacity="0" />
-        <line x1="45" y1="53" x2="59" y2="53" stroke="#dcd1bf" strokeWidth="0.5" opacity="0" />
-        <line x1="45" y1="57" x2="59" y2="57" stroke="#dcd1bf" strokeWidth="0.5" opacity="0" />
-        {/* Right lower */}
-        <rect x="45" y="67" width="14" height="16" stroke="#dcd1bf" strokeWidth="0.8" fill="none" opacity="0" />
-        {/* Door knobs */}
-        <circle cx="38.5" cy="64" r="1.8" fill="#dcd1bf" fillOpacity="0" stroke="#dcd1bf" strokeWidth="0.5" opacity="0" />
-        <circle cx="41.5" cy="64" r="1.8" fill="#dcd1bf" fillOpacity="0" stroke="#dcd1bf" strokeWidth="0.5" opacity="0" />
+        {/* ── Outer arch ── */}
+        <path d="M 22 122 A 108 108 0 0 1 238 122" stroke="#dcd1bf" strokeWidth="2" fill="none" opacity="0" />
+        {/* ── Inner arch ── */}
+        <path d="M 33 122 A 97 97 0 0 1 227 122" stroke="#dcd1bf" strokeWidth="1.2" fill="none" opacity="0" />
+
+        {/* ── Small circle at top of fan ── */}
+        <circle cx="130" cy="42" r="4.5" stroke="#dcd1bf" strokeWidth="1.2" fill="#dcd1bf" fillOpacity="0" opacity="0" />
+
+        {/* ── Sunburst rays ── */}
+        {[...Array(15)].map((_, i) => {
+          const total = 15;
+          const angle = (Math.PI * (i + 0.5)) / total;
+          const innerR = 14;
+          const outerR = 94;
+          const cx = 130;
+          const cy = 122;
+          const x1 = cx + Math.cos(Math.PI - angle) * innerR;
+          const y1 = cy - Math.sin(angle) * innerR;
+          const x2 = cx + Math.cos(Math.PI - angle) * outerR;
+          const y2 = cy - Math.sin(angle) * outerR;
+          return (
+            <line
+              key={`ray-${i}`}
+              x1={x1}
+              y1={y1}
+              x2={x2}
+              y2={y2}
+              stroke="#dcd1bf"
+              strokeWidth="0.8"
+              opacity="0"
+            />
+          );
+        })}
+
+        {/* ── Fan hub arc ── */}
+        <path d="M 116 122 A 14 14 0 0 1 144 122" stroke="#dcd1bf" strokeWidth="1" fill="none" opacity="0" />
+
+        {/* ── Horizontal bands below arch ── */}
+        <line x1="18" y1="122" x2="242" y2="122" stroke="#dcd1bf" strokeWidth="2" opacity="0" />
+        <line x1="18" y1="130" x2="242" y2="130" stroke="#dcd1bf" strokeWidth="1" opacity="0" />
+
+        {/* ── Door outer frames ── */}
+        <rect x="22" y="134" width="105" height="188" stroke="#dcd1bf" strokeWidth="2" fill="none" opacity="0" />
+        <rect x="133" y="134" width="105" height="188" stroke="#dcd1bf" strokeWidth="2" fill="none" opacity="0" />
+
+        {/* ── Glass panel frames ── */}
+        <rect x="37" y="148" width="75" height="110" stroke="#dcd1bf" strokeWidth="1.2" fill="none" opacity="0" />
+        <rect x="148" y="148" width="75" height="110" stroke="#dcd1bf" strokeWidth="1.2" fill="none" opacity="0" />
+
+        {/* ── Lattice pattern: overlapping circles grid ── */}
+        {[37, 148].map((panelX) =>
+          [0, 1, 2].map((col) =>
+            [0, 1, 2, 3, 4].map((row) => {
+              const cx = panelX + 15 + col * 22.5;
+              const cy = 160 + row * 19;
+              return (
+                <circle
+                  key={`lat-c-${panelX}-${col}-${row}`}
+                  cx={cx}
+                  cy={cy}
+                  r="11"
+                  stroke="#dcd1bf"
+                  strokeWidth="0.6"
+                  fill="none"
+                  opacity="0"
+                />
+              );
+            })
+          )
+        )}
+
+        {/* ── Lattice pattern: center dots ── */}
+        {[37, 148].map((panelX) =>
+          [0, 1, 2].map((col) =>
+            [0, 1, 2, 3, 4].map((row) => {
+              const cx = panelX + 15 + col * 22.5;
+              const cy = 160 + row * 19;
+              return (
+                <circle
+                  key={`lat-d-${panelX}-${col}-${row}`}
+                  cx={cx}
+                  cy={cy}
+                  r="1.6"
+                  fill="#dcd1bf"
+                  fillOpacity="0"
+                  stroke="#dcd1bf"
+                  strokeWidth="0.3"
+                  opacity="0"
+                />
+              );
+            })
+          )
+        )}
+
+        {/* ── Door knobs (center, between doors) ── */}
+        <circle cx="120" cy="234" r="2.4" stroke="#dcd1bf" strokeWidth="0.9" fill="#dcd1bf" fillOpacity="0" opacity="0" />
+        <circle cx="140" cy="234" r="2.4" stroke="#dcd1bf" strokeWidth="0.9" fill="#dcd1bf" fillOpacity="0" opacity="0" />
+
+        {/* ── Horizontal handle bars ── */}
+        <rect x="45" y="266" width="60" height="11" rx="5" stroke="#dcd1bf" strokeWidth="1.2" fill="none" opacity="0" />
+        <rect x="155" y="266" width="60" height="11" rx="5" stroke="#dcd1bf" strokeWidth="1.2" fill="none" opacity="0" />
+
+        {/* ── Lower solid panels ── */}
+        <rect x="41" y="287" width="67" height="28" stroke="#dcd1bf" strokeWidth="1.2" fill="none" opacity="0" />
+        <rect x="152" y="287" width="67" height="28" stroke="#dcd1bf" strokeWidth="1.2" fill="none" opacity="0" />
       </svg>
 
       {/* Wordmark — SVG stroke draw */}
